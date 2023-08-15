@@ -14,9 +14,7 @@ module.exports = {
     // Get a thought
     async getSingleThought(req, res) {
         try {
-            const thought = await Thought.findOne({ _id: req.params.thoughtId })
-            .populate({ path: 'reactions', select: '-__v', })
-            .select('-__v');
+            const thought = await Thought.findOne({ _id: req.params.thoughtId });
 
             if (!thought) {
                 res.status(404).json({ message: 'No thought with that ID' });
@@ -33,8 +31,8 @@ module.exports = {
         try {
             const newThought = await Thought.create(req.body);
 
-            const user = await User.findOneAndUpdate(
-                { _id: req.params.userId },
+            const user = await User.findByIdAndUpdate(
+                req.body.userId,
                 { $addToSet: { thoughts: newThought._id } },
                 { runValidators: true, new: true }
             );
@@ -104,9 +102,9 @@ module.exports = {
         try {
             const thought = await Thought.findOneAndUpdate(
                 { _id: req.params.thoughtId },
-                { $pull: { reactions: req.params.reactionId } },
+                { $pull: { reactions: { _id: req.params.reactionId } } },
                 { runValidators: true, new: true }
-            );
+              );
 
             if (!thought) {
                 res.status(404).json({ message: 'No thought with that ID' });
